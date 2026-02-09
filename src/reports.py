@@ -2,37 +2,38 @@ import csv
 from tabulate import tabulate
 from abc import ABC, abstractmethod
 
+
 class BaseReport(ABC):
     def __init__(self, files, reportName):
         self.files = files
         self.reportName = reportName
         self.stats = {}
-    
+
     def process_files(self):
         for filename in self.files:
-            
+
             try:
-                with open(filename, 'r', encoding='utf-8') as file:
+                with open(filename, "r", encoding="utf-8") as file:
                     reader = csv.DictReader(file)
-                    
+
                     for row in reader:
                         self.process_row(row)
             except FileNotFoundError:
-                print(f'{filename} not found')
+                print(f"{filename} not found")
             except PermissionError:
                 print("PermissionError")
 
     @abstractmethod
     def process_row(row):
         pass
-    
+
     def get_averages(self):
         averages = {}
         for key, (total, count) in self.stats.items():
             if count > 0:
                 averages[key] = total / count
         return averages
-    
+
     @abstractmethod
     def print_report(self):
         pass
@@ -44,9 +45,9 @@ class BaseReport(ABC):
 
 class GDPReport(BaseReport):
     def process_row(self, row):
-        country = row['country']
-        gdp_value = row['gdp']
-        
+        country = row["country"]
+        gdp_value = row["gdp"]
+
         if country and gdp_value:
             try:
                 gdp = float(gdp_value)
@@ -57,14 +58,14 @@ class GDPReport(BaseReport):
                     self.stats[country] = (gdp, 1)
             except ValueError:
                 pass
-    
+
     def print_report(self):
         averages = self.get_averages()
-        
+
         if not averages:
             print("Data error")
             return
-        
+
         table = []
         for i, (country, (total, count)) in enumerate(self.stats.items(), 1):
             avg = total / count
@@ -74,7 +75,7 @@ class GDPReport(BaseReport):
 
     def create_report(self):
         headers = ["", "country", "gdp"]
-        with open(self.reportName, 'w', encoding='utf-8') as file:
+        with open(self.reportName, "w", encoding="utf-8") as file:
             table = []
             for i, (country, (total, count)) in enumerate(self.stats.items(), 1):
                 avg = total / count
