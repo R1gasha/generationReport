@@ -49,22 +49,17 @@ class TestGDPReport:
         assert len(averages) == 2
 
     def test_process_files_with_valid_file(self):
-        """Тест обработки файлов с корректным CSV"""
         report = GDPReport(["./data_sets/economic2.csv"], "test_report.txt")
         report.process_files()
 
-        # Проверяем, что данные были обработаны
         assert "Spain" in report.stats
         assert "Mexico" in report.stats
 
-        # Проверяем конкретные значения для Испании
-        # 1394 + 1409 + 1425 = 4228, 3 записи
         total, count = report.stats["Spain"]
         assert total == 4228.0
         assert count == 3
 
     def test_process_files_nonexistent_file(self, capsys):
-        """Тест обработки несуществующего файла"""
         report = GDPReport(
             ["nonexistent.csv", "./data_sets/economic2.csv"], "test_report.txt"
         )
@@ -78,7 +73,6 @@ class TestGDPReport:
         assert "Mexico" in report.stats
 
     def test_process_files_empty_file(self):
-        """Тест обработки пустого файла"""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False) as f:
             f.write("country,year,gdp\n")
             temp_file_path = f.name
@@ -87,7 +81,6 @@ class TestGDPReport:
             report = GDPReport([temp_file_path], "test_report.txt")
             report.process_files()
 
-            # stats должен остаться пустым
             assert not report.stats
         finally:
             os.unlink(temp_file_path)
@@ -95,7 +88,6 @@ class TestGDPReport:
     def test_print_report(self, capsys):
         report = GDPReport([], "test_report.txt")
 
-        # Устанавливаем тестовые данные
         report.stats = {"Spain": (3000.0, 3), "France": (6000.0, 2)}
 
         report.print_report()
